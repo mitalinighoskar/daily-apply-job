@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Daily Job Plan</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&display=swap">
+<style>
+:root{--bg:#f6f7f4;--surface:#fff;--ink:#17262b;--muted:#5b6a6f;--line:#d9dfdc;--accent:#0d6b78;--accent-ink:#fff;--soft:#e3f0f1;--warn:#b0261b;--ok:#1f7a45;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101a1d;--surface:#18262a;--ink:#e8efef;--muted:#9fb0b4;--line:#2c3d42;--accent:#4fc0cf;--accent-ink:#06191c;--soft:#1d3a40;--warn:#ff8d82;--ok:#6fd49a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101a1d;--surface:#18262a;--ink:#e8efef;--muted:#9fb0b4;--line:#2c3d42;--accent:#4fc0cf;--accent-ink:#06191c;--soft:#1d3a40;--warn:#ff8d82;--ok:#6fd49a;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Public Sans",system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+main{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.7rem;line-height:1.2;margin:0}
+h2{font-size:1.05rem;margin:0 0 4px}
+.sub{color:var(--muted);margin:4px 0 0}
+.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden;margin:14px 0 6px}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
+nav{display:flex;gap:6px;margin:18px 0 14px;border-bottom:1px solid var(--line)}
+nav button{background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);font:inherit;font-weight:600;padding:10px 12px;cursor:pointer}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .t{flex:1;min-width:0}
+.row .t small{display:block;color:var(--muted)}
+.step{display:flex;align-items:center;gap:8px}
+.step button,.btn{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;font:inherit;font-weight:600;cursor:pointer}
+.step button{width:36px;height:36px}
+.step b{min-width:3.2em;text-align:center}
+.step b.done{color:var(--ok)}
+.btn{padding:8px 14px;display:inline-block;text-decoration:none}
+.btn.p{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+input[type=checkbox]{width:22px;height:22px;accent-color:var(--accent)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 16px;margin-bottom:14px}
+.panel.pad{padding:14px 16px}
+.note{color:var(--muted);font-size:.9rem}
+.banner{background:var(--soft);border-radius:8px;padding:10px 14px;margin:12px 0}
+label{display:block;font-weight:600;font-size:.9rem;margin:10px 0 4px}
+select,input[type=text],textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px}
+textarea{min-height:190px;resize:vertical;line-height:1.45}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:520px){.grid{grid-template-columns:1fr}}
+.links{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.links:last-child{border-bottom:0}
+.links span{font-weight:600;min-width:64px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{background:var(--soft);color:var(--ink);border:0;border-radius:999px;padding:6px 12px;font:inherit;cursor:pointer}
+.out{margin-bottom:16px}
+.out .h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.cnt{font-size:.85rem;color:var(--muted)}
+.cnt.bad{color:var(--warn);font-weight:600}
+.hide{display:none}
+</style>
+</head>
+<body>
+<main>
+<h1>Daily job plan</h1>
+<p class="sub" id="date"></p>
+<div class="bar" role="progressbar" aria-label="Today’s progress" aria-valuemin="0" aria-valuemax="100"><i id="fill"></i></div>
+<p class="note" id="prog"></p>
+
+<nav role="tablist">
+<button role="tab" data-tab="today" aria-selected="true">Today</button>
+<button role="tab" data-tab="jobs" aria-selected="false">Find jobs</button>
+<button role="tab" data-tab="mail" aria-selected="false">Emails</button>
+</nav>
+
+<section id="tab-today">
+<div class="banner" id="wk"></div>
+<div class="panel" id="counters"></div>
+<div class="panel" id="checks"></div>
+<p class="note">Targets: 4 applications a day on weekdays, about 18–20 a week, plus 2 recruiter or HR emails a day. Progress is saved in this browser only, one record per day.</p>
+</section>
+
+<section id="tab-jobs" class="hide">
+<div class="panel pad">
+<label for="role">Role</label>
+<select id="role"></select>
+<div class="chips" id="focus"></div>
+<label for="fresh">Posted within</label>
+<select id="fresh"><option value="0">Last 24 hours</option><option value="1">Last 7 days</option><option value="2">Last 30 days</option></select>
+</div>
+<div class="panel" id="links"></div>
+<p class="note">These buttons open live searches on each site, filtered to the posting age you choose and to mid-entry experience where the site allows it. The app cannot list jobs itself. Indeed’s longest filter is 14 days, so its “30 days” button uses 14. Skip anything that looks older than a month or already has hundreds of applicants.</p>
+</section>
+
+<section id="tab-mail" class="hide">
+<div class="panel pad">
+<div class="grid">
+<div><label for="rname">Recruiter or HR name</label><input type="text" id="rname" placeholder="e.g. Priya"></div>
+<div><label for="co">Company</label><input type="text" id="co" placeholder="e.g. Persistent Systems"></div>
+</div>
+<label for="role2">Role</label>
+<select id="role2"></select>
+<label for="extra">One real result to add (optional)</label>
+<input type="text" id="extra" placeholder="e.g. Specified 15 API endpoints across 3 release cycles">
+<p class="note">Only add numbers you can back up in an interview. Replace anything in [brackets] before sending.</p>
+</div>
+<div id="outs"></div>
+</section>
+</main>
+
+<script>
+(function(){
+var PLAN=[
+ {k:"A",label:"Tier A: best-fit applications",n:1,note:"Full tailoring, about 30 minutes"},
+ {k:"B",label:"Tier B: good-fit applications",n:2,note:"10-minute tailoring routine"},
+ {k:"C",label:"Tier C: stretch applications",n:1,note:"Use a resume variant, no extra tailoring"},
+ {k:"E",label:"Recruiter or HR emails",n:2,note:"One for your Tier A role, one to a company you like"}
+];
+var CHECKS=[
+ {k:"t1",label:"Run today’s job searches (last 24 hours) and shortlist 6–8 roles"},
+ {k:"t2",label:"Check your tracker for follow-ups due (day 6 and day 13)"},
+ {k:"t3",label:"Log today’s applications in your tracker"}
+];
+var ROLES=[
+ {n:"Business Analyst (IT / Technical)",q:"Business Analyst",s:"I turn requirements into user stories and documented interfaces that engineers build from.",p:"I work with engineering, QA and consumer teams across 20+ services."},
+ {n:"Technical BA, P&C insurance",q:"Technical Business Analyst insurance",s:"I work on API contracts, data models and business rules for a multi-service underwriting platform.",p:"My domain is Property and Casualty underwriting and exposure data."},
+ {n:"Systems / Functional Analyst",q:"Systems Analyst",s:"I handle requirements, field mapping and impact analysis across integrated systems."},
+ {n:"Integration / API BA (fintech, payments)",q:"Business Analyst API integration",s:"I have supported an API migration across three applications and helped define API contracts with validation rules and error handling."},
+ {n:"Data Quality / Business Data Analyst",q:"Data Quality Analyst",s:"I turn business scenarios into data-quality and duplicate-detection rules and help standardize data models across MongoDB and PostgreSQL."},
+ {n:"Product Analyst / Technical Product Analyst",q:"Product Analyst",s:"I turn stakeholder needs into user stories and acceptance criteria, and I can read the code (Spring Boot, React, SQL)."},
+ {n:"Implementation / Solutions Consultant",q:"Implementation Consultant",s:"I connect business needs to technical implementation, through release validation and UAT."},
+ {n:"Associate Product Owner",q:"Associate Product Owner",s:"I write user stories and acceptance criteria in JIRA and Confluence and get them delivered with engineering and QA.",p:"I work across 20+ services."},
+ {n:"Software Engineer (Java Spring Boot / React)",q:"Java Spring Boot Developer",s:"I build backend and database-driven features (Spring Boot, SQL) and React UI enhancements.",p:"I won the Mastering New Codebase Award at a hackathon."},
+ {n:"Associate Product Manager (stretch)",q:"Associate Product Manager",s:"I work between business stakeholders and engineers on requirements and cross-team delivery."}
+];
+var CITIES=["Pune","Mumbai"];
+var $=function(s){return document.querySelector(s)};
+var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})};
+function dk(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function load(k){try{return JSON.parse(localStorage.getItem("jh-"+k))}catch(e){return null}}
+function save(k,v){try{localStorage.setItem("jh-"+k,JSON.stringify(v))}catch(e){}}
+
+var now=new Date(),key=dk(now),wkend=now.getDay()===0||now.getDay()===6;
+var st=load(key)||{c:{},t:{}};st.c=st.c||{};st.t=st.t||{};
+$("#date").textContent=now.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+
+function weekTotal(){var s=0;for(var i=0;i<7;i++){var d=new Date(now);d.setDate(d.getDate()-i);var r=i===0?st:load(dk(d));if(r&&r.c)s+=(r.c.A||0)+(r.c.B||0)+(r.c.C||0)}return s}
+
+function renderToday(){
+ $("#wk").textContent=wkend?"Weekend: keep it light. Review your tracker and apply only if you find a strong match. Past 7 days: "+weekTotal()+" applications.":"Past 7 days: "+weekTotal()+" applications (weekly goal 18–20).";
+ var h="";
+ PLAN.forEach(function(p){var c=st.c[p.k]||0;
+  h+='<div class="row"><div class="t"><strong>'+esc(p.label)+'</strong><small>'+esc(p.note)+'</small></div><div class="step"><button data-k="'+p.k+'" data-d="-1" aria-label="Remove one">−</button><b class="'+(c>=p.n?"done":"")+'">'+c+" / "+p.n+'</b><button data-k="'+p.k+'" data-d="1" aria-label="Add one">+</button></div></div>'});
+ $("#counters").innerHTML=h;
+ h="";
+ CHECKS.forEach(function(x){h+='<label class="row" style="margin:0;font-weight:400"><input type="checkbox" data-t="'+x.k+'"'+(st.t[x.k]?" checked":"")+'><span class="t">'+esc(x.label)+'</span></label>'});
+ $("#checks").innerHTML=h;
+ var tot=CHECKS.length,got=0;
+ PLAN.forEach(function(p){tot+=p.n;got+=Math.min(st.c[p.k]||0,p.n)});
+ CHECKS.forEach(function(x){if(st.t[x.k])got++});
+ var pct=Math.round(got/tot*100);
+ $("#fill").style.width=pct+"%";
+ document.querySelector(".bar").setAttribute("aria-valuenow",pct);
+ $("#prog").textContent=got+" of "+tot+" done today ("+pct+"%)";
+}
+$("#counters").addEventListener("click",function(e){var b=e.target.closest("button[data-k]");if(!b)return;var k=b.dataset.k;st.c[k]=Math.max(0,(st.c[k]||0)+Number(b.dataset.d));save(key,st);renderToday()});
+$("#checks").addEventListener("change",function(e){var k=e.target.dataset.t;if(!k)return;st.t[k]=e.target.checked;save(key,st);renderToday()});
+
+/* roles */
+var roleSel=$("#role"),role2=$("#role2");
+ROLES.forEach(function(r,i){var o='<option value="'+i+'">'+esc(r.n)+"</option>";roleSel.insertAdjacentHTML("beforeend",o);role2.insertAdjacentHTML("beforeend",o)});
+function setRole(i){roleSel.value=i;role2.value=i;renderLinks();renderMail()}
+roleSel.addEventListener("change",function(){setRole(roleSel.value)});
+role2.addEventListener("change",function(){setRole(role2.value)});
+
+/* jobs */
+var doy=Math.floor((now-new Date(now.getFullYear(),0,0))/864e5);
+var focus=[doy%6,(doy+3)%6];
+$("#focus").innerHTML='<span class="note" style="align-self:center">Today’s focus:</span>'+focus.map(function(i){return '<button class="chip" data-r="'+i+'">'+esc(ROLES[i].q)+"</button>"}).join("");
+$("#focus").addEventListener("click",function(e){var b=e.target.closest("[data-r]");if(b)setRole(b.dataset.r)});
+function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
+function renderLinks(){
+ var r=ROLES[roleSel.value||0],f=Number($("#fresh").value),q=encodeURIComponent(r.q),h="";
+ CITIES.forEach(function(c){
+  var li="https://www.linkedin.com/jobs/search/?keywords="+q+"&location="+encodeURIComponent(c+", Maharashtra, India")+"&f_TPR="+["r86400","r604800","r2592000"][f]+"&f_E=2%2C3&sortBy=DD";
+  var nk="https://www.naukri.com/"+slug(r.q)+"-jobs-in-"+c.toLowerCase()+"?experience=3&jobAge="+[1,7,30][f];
+  var ind="https://in.indeed.com/jobs?q="+q+"&l="+encodeURIComponent(c+", Maharashtra")+"&fromage="+[1,7,14][f]+"&sort=date";
+  h+='<div class="links"><span>'+c+'</span><a class="btn p" target="_blank" rel="noopener" href="'+li+'">LinkedIn</a><a class="btn" target="_blank" rel="noopener" href="'+nk+'">Naukri</a><a class="btn" target="_blank" rel="noopener" href="'+ind+'">Indeed</a></div>'});
+ $("#links").innerHTML=h;
+}
+$("#fresh").addEventListener("change",renderLinks);
+
+/* emails */
+var SIG="\n\nBest,\nMitali Nighoskar\nmitaliworkk@gmail.com | linkedin.com/in/mitalinighoskar";
+function build(){
+ var r=ROLES[role2.value||0],nm=$("#rname").value.trim(),co=$("#co").value.trim()||"[Company]",ex=$("#extra").value.trim();
+ var hello="Hi "+(nm||"[Name]")+",\n\n",hook=r.s+(r.p?" "+r.p:"")+(ex?" "+ex.replace(/\.?$/,".") :"");
+ return [
+  {t:"Recruiter or HR email (no specific posting)",subj:r.n+" | Mitali Nighoskar",body:hello+"I’m Mitali, a Senior Analyst at Capgemini in Pune working on insurance underwriting platforms. "+hook+"\n\nI’m interested in "+r.n+" roles at "+co+". If there is a fit now or soon, I’d be glad to share my resume and talk for 15 minutes."+SIG},
+  {t:"Email for a specific job",subj:"Application for "+r.n+" | Mitali Nighoskar",body:(nm?hello:"Hi Hiring Team,\n\n")+"I’m applying for the "+r.n+" position at "+co+". "+hook+"\n\n[One line linking a requirement in the job description to something you have done.]\n\nMy resume is attached. I’d welcome a short conversation about the role."+SIG},
+  {t:"LinkedIn note (300 characters max)",limit:300,body:"Hi "+(nm||"[Name]")+", I’m a Senior Analyst at Capgemini on P&C underwriting platforms. "+r.s+" The "+r.n.replace(/ \(.*\)/,"")+" role at "+co+" looks like a close match. Happy to send a one-page summary."},
+  {t:"Follow-up (day 6 after applying)",subj:"Following up: "+r.n+" | Mitali Nighoskar",body:hello+"I applied for the "+r.n+" role at "+co+" on [date] and wanted to follow up. "+r.s+" I’d welcome a short conversation about next steps."+SIG}
+ ];
+}
+function renderMail(){
+ var o=build(),h="";
+ o.forEach(function(m,i){
+  var mail=m.subj?'<a class="btn" href="mailto:?subject='+encodeURIComponent(m.subj)+"&body="+encodeURIComponent(m.body)+'">Open in mail</a>':"";
+  h+='<div class="out"><div class="h"><h2>'+esc(m.t)+'</h2><span><button class="btn" data-copy="'+i+'">Copy</button> '+mail+'</span></div>'+(m.subj?'<div class="note">Subject: '+esc(m.subj)+"</div>":"")+'<textarea id="ta'+i+'" aria-label="'+esc(m.t)+'">'+esc(m.body)+'</textarea><div class="cnt" id="cnt'+i+'"></div></div>'});
+ $("#outs").innerHTML=h;
+ o.forEach(function(m,i){count(i,m.limit)});
+}
+function count(i,limit){var ta=$("#ta"+i),c=$("#cnt"+i),n=ta.value.length;c.textContent=n+" characters"+(limit?" of "+limit:"");c.className="cnt"+(limit&&n>limit?" bad":"");if(limit&&n>limit)c.textContent+=" (too long, shorten before sending)"}
+$("#outs").addEventListener("input",function(e){var i=e.target.id.replace("ta","");count(i,i==="2"?300:0)});
+$("#outs").addEventListener("click",function(e){var b=e.target.closest("[data-copy]");if(!b)return;var ta=$("#ta"+b.dataset.copy),done=function(){b.textContent="Copied";setTimeout(function(){b.textContent="Copy"},1500)};
+ try{navigator.clipboard.writeText(ta.value).then(done,function(){ta.select();document.execCommand("copy");done()})}catch(x){ta.select();try{document.execCommand("copy");done()}catch(y){}}});
+["#rname","#co","#extra"].forEach(function(s){$(s).addEventListener("input",renderMail)});
+
+/* tabs */
+document.querySelectorAll("nav button").forEach(function(b){b.addEventListener("click",function(){
+ document.querySelectorAll("nav button").forEach(function(x){x.setAttribute("aria-selected",x===b)});
+ ["today","jobs","mail"].forEach(function(t){$("#tab-"+t).classList.toggle("hide",t!==b.dataset.tab)})})});
+
+renderToday();setRole(focus[0]);
+})();
+</script>
+</body>
+</html>
